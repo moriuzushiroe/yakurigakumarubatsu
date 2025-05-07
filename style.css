@@ -1,5 +1,6 @@
 body {
   font-family: sans-serif;
+  font-size: 1.5rem; /* ← ここで全体の基準文字サイズを拡大 */
   padding: 20px;
   background-color: #f9f9f9;
   max-width: 800px;
@@ -7,69 +8,51 @@ body {
 }
 
 textarea {
+  font-size: 1.5rem; /* テキストエリアも合わせる */
   width: 100%;
   box-sizing: border-box;
 }
 
 button {
   margin: 5px;
-  padding: 10px 14px;
-  font-size: 1rem;
-}
-
-.answer-button.correct {
-  background-color: #c8f7c5;
-}
-
-.answer-button.incorrect {
-  background-color: #f8c8c8;
+  padding: 12px 18px;
+  font-size: 1.5rem; /* ボタン文字も合わせる */
 }
 
 table {
   border-collapse: collapse;
   margin-top: 10px;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 1.4rem; /* 表も少し大きく */
 }
 
-th, td {
-  border: 1px solid #ccc;
-  padding: 6px;
-  text-align: center;
-  word-break: break-word;
+#question-texts > div {
+  margin: 10px 0;
 }
 
-/* スマホ向けの調整 */
+/* スマホ向け調整 */
 @media (max-width: 600px) {
   body {
+    font-size: 1.3rem;
     padding: 10px;
   }
 
   button {
     width: 100%;
-    margin: 8px 0;
-    font-size: 1rem;
+    margin: 10px 0;
+    font-size: 1.4rem;
   }
 
   table {
-    font-size: 0.8rem;
-  }
-
-  #question-texts > div {
-    margin-bottom: 5px;
+    font-size: 1.2rem;
   }
 
   th, td {
-    padding: 4px;
-  }
-
-  #answer-table th:first-child,
-  #answer-table td:first-child {
-    width: 15%;
+    padding: 6px;
   }
 
   #answer-table button {
-    padding: 6px 8px;
-    font-size: 0.9rem;
+    padding: 10px 12px;
+    font-size: 1.2rem;
   }
 }
