@@ -2,15 +2,19 @@ body {
   font-family: sans-serif;
   padding: 20px;
   background-color: #f9f9f9;
+  max-width: 800px;
+  margin: auto;
 }
 
 textarea {
   width: 100%;
+  box-sizing: border-box;
 }
 
 button {
   margin: 5px;
-  padding: 6px 12px;
+  padding: 10px 14px;
+  font-size: 1rem;
 }
 
 .answer-button.correct {
@@ -24,10 +28,48 @@ button {
 table {
   border-collapse: collapse;
   margin-top: 10px;
+  width: 100%;
+  font-size: 0.9rem;
 }
 
 th, td {
   border: 1px solid #ccc;
   padding: 6px;
   text-align: center;
+  word-break: break-word;
+}
+
+/* スマホ向けの調整 */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  button {
+    width: 100%;
+    margin: 8px 0;
+    font-size: 1rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  #question-texts > div {
+    margin-bottom: 5px;
+  }
+
+  th, td {
+    padding: 4px;
+  }
+
+  #answer-table th:first-child,
+  #answer-table td:first-child {
+    width: 15%;
+  }
+
+  #answer-table button {
+    padding: 6px 8px;
+    font-size: 0.9rem;
+  }
 }
