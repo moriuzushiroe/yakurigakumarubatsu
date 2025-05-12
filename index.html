@@ -13,38 +13,60 @@
   </style>
 </head>
 <body>
-  <div id="list-page">
+
+  <!-- リスト選択画面 -->
+  <section id="list-page">
     <h2>リスト選択</h2>
     <div id="list-buttons"></div>
-    <button id="add-list-btn">リスト追加</button>
-  </div>
+    <button id="add-list-btn">＋ リスト追加</button>
+  </section>
 
-  <div id="input-screen">
+  <!-- 入力画面 -->
+  <section id="input-screen">
     <h2>入力画面</h2>
-    <label>リスト名: <input id="current-list-name" type="text"></label><br>
-    <label>正文リスト:<br><textarea id="true-list" rows="10" cols="50"></textarea></label><br>
-    <label>誤文リスト:<br><textarea id="false-list" rows="10" cols="50"></textarea></label><br>
-    <button onclick="generateQuestions()">問題を作成</button>
-    <button id="back-to-list">保存して戻る</button>
-  </div>
+    <form id="input-form" onsubmit="return false;">
+      <div>
+        <label for="current-list-name">リスト名：</label>
+        <input id="current-list-name" type="text" required />
+      </div>
+      <div>
+        <label for="true-list">正文リスト：</label><br />
+        <textarea id="true-list" rows="10" cols="50" required></textarea>
+      </div>
+      <div>
+        <label for="false-list">誤文リスト：</label><br />
+        <textarea id="false-list" rows="10" cols="50" required></textarea>
+      </div>
+      <div>
+        <button type="button" onclick="generateQuestions()">問題を作成</button>
+        <button type="button" id="back-to-list">保存して戻る</button>
+      </div>
+    </form>
+  </section>
 
-  <div id="quiz-screen">
+  <!-- 問題画面 -->
+  <section id="quiz-screen">
     <h2>問題</h2>
     <div id="progress"></div>
     <div id="question-texts"></div>
     <table id="answer-table"></table>
+
     <div>
-      <input type="checkbox" id="mark-question" onchange="toggleMark()"> チェックする
+      <label><input type="checkbox" id="mark-question" onchange="toggleMark()" /> チェックする</label>
     </div>
-    <button onclick="prevQuestion()">前へ</button>
-    <button onclick="nextQuestion()" id="next-button" disabled>次へ</button>
-    <button onclick="toggleExplanation()">解説を表示</button>
-    <button id="toggle-marked-btn" onclick="toggleMarkedOnly()">チェックした問題のみ出題</button>
+
+    <div>
+      <button onclick="prevQuestion()">前へ</button>
+      <button onclick="nextQuestion()" id="next-button" disabled>次へ</button>
+      <button onclick="toggleExplanation()">解説を表示</button>
+      <button id="toggle-marked-btn" onclick="toggleMarkedOnly()">チェックした問題のみ出題</button>
+    </div>
+
     <div id="result-message"></div>
     <div id="accuracy"></div>
     <div id="explanation" style="display: none;"></div>
     <button onclick="goToInput()">入力画面に戻る</button>
-  </div>
+  </section>
 
   <script src="app.js"></script>
 </body>
