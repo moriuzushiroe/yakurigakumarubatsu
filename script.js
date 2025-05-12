@@ -27,6 +27,10 @@ const combinations = [
   [false, false, false]
 ];
 
+function calculateMinQuestions(trueLen, falseLen) {
+  return Math.floor((trueLen * 2) / 3) + 5;
+}
+
 function saveToLocal(name, data) {
   localStorage.setItem(name, JSON.stringify(data));
 }
@@ -36,13 +40,7 @@ function loadFromLocal(name) {
   return data ? JSON.parse(data) : null;
 }
 
-function saveInputData() {
-  const name = document.getElementById('current-list-name').value;
-  saveToLocal(name + '_true', document.getElementById('true-list').value);
-  saveToLocal(name + '_false', document.getElementById('false-list').value);
-  saveToLocal('lastListName', name);
-}
-
+// 初期ページのセットアップ
 function setupListPage() {
   const list = document.getElementById('list-buttons');
   const savedLists = loadFromLocal('savedLists') || [];
@@ -71,7 +69,9 @@ function setupListPage() {
     list.appendChild(document.createElement('br'));
   });
 
-  document.getElementById('add-list-btn').onclick = () => {
+  const addBtn = document.getElementById('add-list-btn');
+  addBtn.onclick = () => {
+    const savedLists = loadFromLocal('savedLists') || [];
     const newName = 'リスト' + (savedLists.length + 1);
     savedLists.push(newName);
     saveToLocal('savedLists', savedLists);
@@ -79,11 +79,24 @@ function setupListPage() {
   };
 }
 
+function saveInputData() {
+  const name = document.getElementById('current-list-name').value;
+  saveToLocal(name + '_true', document.getElementById('true-list').value);
+  saveToLocal(name + '_false', document.getElementById('false-list').value);
+
+  const savedLists = loadFromLocal('savedLists') || [];
+  if (!savedLists.includes(name)) {
+    savedLists.push(name);
+    saveToLocal('savedLists', savedLists);
+  }
+}
+
 function generateQuestions() {
   saveInputData();
 
   trueList = parseList(document.getElementById('true-list').value);
   falseList = parseList(document.getElementById('false-list').value);
+
   const maxQuestions = trueList.length + 20;
   questions = [];
 
@@ -97,6 +110,7 @@ function generateQuestions() {
 
   while (questions.length < maxQuestions && attempts < maxAttempts) {
     attempts++;
+
     const pattern = combinations[Math.floor(Math.random() * combinations.length)];
     const requiredTrue = pattern.filter(v => v).length;
     const requiredFalse = 3 - requiredTrue;
@@ -104,7 +118,9 @@ function generateQuestions() {
     const availableTrue = shuffle([...allTrue]);
     const availableFalse = shuffle([...allFalse]);
 
-    if (availableTrue.length < requiredTrue || availableFalse.length < requiredFalse) continue;
+    if (availableTrue.length < requiredTrue || availableFalse.length < requiredFalse) {
+      continue;
+    }
 
     const selected = [];
     const answers = [];
@@ -134,7 +150,11 @@ function generateQuestions() {
       checked: false
     });
 
-    if (questions.length >= maxQuestions && usedTrue.size === allTrue.length && usedFalse.size === allFalse.length) {
+    if (
+      questions.length >= maxQuestions &&
+      usedTrue.size === allTrue.length &&
+      usedFalse.size === allFalse.length
+    ) {
       break;
     }
   }
@@ -245,6 +265,7 @@ function goToInput() {
 
 function toggleMarkedOnly() {
   const btn = document.getElementById('toggle-marked-btn');
+
   if (!usingMarkedOnly) {
     const markedQuestions = questions.filter(q => q.checked);
     if (markedQuestions.length === 0) {
@@ -262,6 +283,7 @@ function toggleMarkedOnly() {
     usingMarkedOnly = false;
     btn.textContent = 'チェックした問題のみ出題';
   }
+
   showQuestion();
 }
 
@@ -269,23 +291,12 @@ function toggleMark() {
   questions[currentQuestionIndex].checked = document.getElementById('mark-question').checked;
 }
 
-window.onload = () => {
+window.onload = setupListPage;
+
+// 「保存して戻る」ボタンのイベント処理
+document.getElementById('back-to-list').onclick = () => {
+  saveInputData();
+  document.getElementById('input-screen').style.display = 'none';
+  document.getElementById('list-page').style.display = 'block';
   setupListPage();
-
-  const lastListName = loadFromLocal('lastListName');
-  if (lastListName) {
-    document.getElementById('true-list').value = loadFromLocal(lastListName + '_true') || '';
-    document.getElementById('false-list').value = loadFromLocal(lastListName + '_false') || '';
-    document.getElementById('current-list-name').value = lastListName;
-  }
-
-  const backBtn = document.getElementById('back-to-list');
-  if (backBtn) {
-    backBtn.onclick = () => {
-      saveInputData();
-      document.getElementById('input-screen').style.display = 'none';
-      document.getElementById('list-page').style.display = 'block';
-      setupListPage();
-    };
-  }
 };
