@@ -27,10 +27,6 @@ const combinations = [
   [false, false, false]
 ];
 
-function calculateMinQuestions(trueLen, falseLen) {
-  return Math.floor((trueLen * 2) / 3) + 5;
-}
-
 function saveToLocal(name, data) {
   localStorage.setItem(name, JSON.stringify(data));
 }
@@ -38,6 +34,13 @@ function saveToLocal(name, data) {
 function loadFromLocal(name) {
   const data = localStorage.getItem(name);
   return data ? JSON.parse(data) : null;
+}
+
+function saveInputData() {
+  const name = document.getElementById('current-list-name').value;
+  saveToLocal(name + '_true', document.getElementById('true-list').value);
+  saveToLocal(name + '_false', document.getElementById('false-list').value);
+  saveToLocal('lastListName', name);
 }
 
 function setupListPage() {
@@ -61,7 +64,6 @@ function setupListPage() {
       document.getElementById('true-list').value = loadFromLocal(name + '_true') || '';
       document.getElementById('false-list').value = loadFromLocal(name + '_false') || '';
       document.getElementById('current-list-name').value = name;
-      saveToLocal('lastListName', name);  // 現在のリスト名を保存
     };
 
     list.appendChild(input);
@@ -69,26 +71,12 @@ function setupListPage() {
     list.appendChild(document.createElement('br'));
   });
 
-  const addBtn = document.getElementById('add-list-btn');
-  addBtn.onclick = () => {
+  document.getElementById('add-list-btn').onclick = () => {
     const newName = 'リスト' + (savedLists.length + 1);
     savedLists.push(newName);
     saveToLocal('savedLists', savedLists);
     setupListPage();
   };
-
-  // 入力欄変更時に自動保存
-  document.getElementById('true-list').addEventListener('input', saveInputData);
-  document.getElementById('false-list').addEventListener('input', saveInputData);
-  document.getElementById('current-list-name').addEventListener('input', saveInputData);
-}
-
-function saveInputData() {
-  const name = document.getElementById('current-list-name').value;
-  if (!name) return;
-  saveToLocal(name + '_true', document.getElementById('true-list').value);
-  saveToLocal(name + '_false', document.getElementById('false-list').value);
-  saveToLocal('lastListName', name);  // 直近のリスト名を保存
 }
 
 function generateQuestions() {
@@ -96,7 +84,6 @@ function generateQuestions() {
 
   trueList = parseList(document.getElementById('true-list').value);
   falseList = parseList(document.getElementById('false-list').value);
-
   const maxQuestions = trueList.length + 20;
   questions = [];
 
@@ -110,7 +97,6 @@ function generateQuestions() {
 
   while (questions.length < maxQuestions && attempts < maxAttempts) {
     attempts++;
-
     const pattern = combinations[Math.floor(Math.random() * combinations.length)];
     const requiredTrue = pattern.filter(v => v).length;
     const requiredFalse = 3 - requiredTrue;
@@ -118,9 +104,7 @@ function generateQuestions() {
     const availableTrue = shuffle([...allTrue]);
     const availableFalse = shuffle([...allFalse]);
 
-    if (availableTrue.length < requiredTrue || availableFalse.length < requiredFalse) {
-      continue;
-    }
+    if (availableTrue.length < requiredTrue || availableFalse.length < requiredFalse) continue;
 
     const selected = [];
     const answers = [];
@@ -261,7 +245,6 @@ function goToInput() {
 
 function toggleMarkedOnly() {
   const btn = document.getElementById('toggle-marked-btn');
-
   if (!usingMarkedOnly) {
     const markedQuestions = questions.filter(q => q.checked);
     if (markedQuestions.length === 0) {
@@ -279,7 +262,6 @@ function toggleMarkedOnly() {
     usingMarkedOnly = false;
     btn.textContent = 'チェックした問題のみ出題';
   }
-
   showQuestion();
 }
 
@@ -290,13 +272,20 @@ function toggleMark() {
 window.onload = () => {
   setupListPage();
 
-  // 前回の入力内容を復元
   const lastListName = loadFromLocal('lastListName');
   if (lastListName) {
-    const trueVal = loadFromLocal(lastListName + '_true') || '';
-    const falseVal = loadFromLocal(lastListName + '_false') || '';
-    document.getElementById('true-list').value = trueVal;
-    document.getElementById('false-list').value = falseVal;
+    document.getElementById('true-list').value = loadFromLocal(lastListName + '_true') || '';
+    document.getElementById('false-list').value = loadFromLocal(lastListName + '_false') || '';
     document.getElementById('current-list-name').value = lastListName;
+  }
+
+  const backBtn = document.getElementById('back-to-list');
+  if (backBtn) {
+    backBtn.onclick = () => {
+      saveInputData();
+      document.getElementById('input-screen').style.display = 'none';
+      document.getElementById('list-page').style.display = 'block';
+      setupListPage();
+    };
   }
 };
