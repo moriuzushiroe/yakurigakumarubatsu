@@ -40,7 +40,6 @@ function loadFromLocal(name) {
   return data ? JSON.parse(data) : null;
 }
 
-// 初期ページのセットアップ
 function setupListPage() {
   const list = document.getElementById('list-buttons');
   const savedLists = loadFromLocal('savedLists') || [];
@@ -62,6 +61,7 @@ function setupListPage() {
       document.getElementById('true-list').value = loadFromLocal(name + '_true') || '';
       document.getElementById('false-list').value = loadFromLocal(name + '_false') || '';
       document.getElementById('current-list-name').value = name;
+      saveToLocal('lastListName', name);  // 現在のリスト名を保存
     };
 
     list.appendChild(input);
@@ -76,12 +76,19 @@ function setupListPage() {
     saveToLocal('savedLists', savedLists);
     setupListPage();
   };
+
+  // 入力欄変更時に自動保存
+  document.getElementById('true-list').addEventListener('input', saveInputData);
+  document.getElementById('false-list').addEventListener('input', saveInputData);
+  document.getElementById('current-list-name').addEventListener('input', saveInputData);
 }
 
 function saveInputData() {
   const name = document.getElementById('current-list-name').value;
+  if (!name) return;
   saveToLocal(name + '_true', document.getElementById('true-list').value);
   saveToLocal(name + '_false', document.getElementById('false-list').value);
+  saveToLocal('lastListName', name);  // 直近のリスト名を保存
 }
 
 function generateQuestions() {
@@ -280,4 +287,16 @@ function toggleMark() {
   questions[currentQuestionIndex].checked = document.getElementById('mark-question').checked;
 }
 
-window.onload = setupListPage;
+window.onload = () => {
+  setupListPage();
+
+  // 前回の入力内容を復元
+  const lastListName = loadFromLocal('lastListName');
+  if (lastListName) {
+    const trueVal = loadFromLocal(lastListName + '_true') || '';
+    const falseVal = loadFromLocal(lastListName + '_false') || '';
+    document.getElementById('true-list').value = trueVal;
+    document.getElementById('false-list').value = falseVal;
+    document.getElementById('current-list-name').value = lastListName;
+  }
+};
