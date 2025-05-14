@@ -40,7 +40,21 @@ function loadFromLocal(name) {
   return data ? JSON.parse(data) : null;
 }
 
-// 初期ページのセットアップ
+// 保存された進捗データの読み込み
+function loadProgress() {
+  const progress = loadFromLocal('quizProgress');
+  if (progress) {
+    score = progress.score || 0;
+    answered = progress.answered || 0;
+    document.getElementById('accuracy').textContent = `正答率: ${Math.round((score / answered) * 100)}%`;
+  }
+}
+
+// 正答数や進捗状況の保存
+function saveProgress() {
+  saveToLocal('quizProgress', { score, answered });
+}
+
 function setupListPage() {
   const list = document.getElementById('list-buttons');
   const savedLists = loadFromLocal('savedLists') || [];
@@ -71,7 +85,6 @@ function setupListPage() {
 
   const addBtn = document.getElementById('add-list-btn');
   addBtn.onclick = () => {
-    const savedLists = loadFromLocal('savedLists') || [];
     const newName = 'リスト' + (savedLists.length + 1);
     savedLists.push(newName);
     saveToLocal('savedLists', savedLists);
@@ -83,12 +96,6 @@ function saveInputData() {
   const name = document.getElementById('current-list-name').value;
   saveToLocal(name + '_true', document.getElementById('true-list').value);
   saveToLocal(name + '_false', document.getElementById('false-list').value);
-
-  const savedLists = loadFromLocal('savedLists') || [];
-  if (!savedLists.includes(name)) {
-    savedLists.push(name);
-    saveToLocal('savedLists', savedLists);
-  }
 }
 
 function generateQuestions() {
@@ -150,11 +157,7 @@ function generateQuestions() {
       checked: false
     });
 
-    if (
-      questions.length >= maxQuestions &&
-      usedTrue.size === allTrue.length &&
-      usedFalse.size === allFalse.length
-    ) {
+    if (questions.length >= maxQuestions && usedTrue.size === allTrue.length && usedFalse.size === allFalse.length) {
       break;
     }
   }
@@ -165,6 +168,7 @@ function generateQuestions() {
   markedIndices = new Set();
   usingMarkedOnly = false;
 
+  saveProgress();  // 新しい出題時にも進捗をリセットして保存
   document.getElementById('input-screen').style.display = 'none';
   document.getElementById('quiz-screen').style.display = 'block';
   showQuestion();
@@ -216,6 +220,8 @@ function selectAnswer(index) {
   answered++;
   document.getElementById('next-button').disabled = false;
   document.getElementById('accuracy').textContent = `正答率: ${Math.round((score / answered) * 100)}%`;
+
+  saveProgress();  // 回答ごとに保存
 }
 
 function nextQuestion() {
@@ -291,12 +297,7 @@ function toggleMark() {
   questions[currentQuestionIndex].checked = document.getElementById('mark-question').checked;
 }
 
-window.onload = setupListPage;
-
-// 「保存して戻る」ボタンのイベント処理
-document.getElementById('back-to-list').onclick = () => {
-  saveInputData();
-  document.getElementById('input-screen').style.display = 'none';
-  document.getElementById('list-page').style.display = 'block';
+window.onload = () => {
   setupListPage();
+  loadProgress();  // ページ読み込み時に進捗読み込み
 };
